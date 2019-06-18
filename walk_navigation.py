@@ -1,7 +1,7 @@
 import json
 import codecs
 import time
-import trans      # lib to transform gps coordinates and Mercator coordinates
+import trans    # lib to transform gps coordinates and Mercator coordinates
 import glob
 import pickle
 
@@ -39,33 +39,31 @@ def read_log_file(filename,route):
     print("Reading " + files)
     with codecs.open(filename) as fin:            
         for line in fin:
-            try:
-                # data that has valid imei and have a guide route
-                if line.find('&imei=') != -1 and (line.find('&pf=') - line.find('&imei=')) > 15 and line.find("\"coors\":\"") != -1:
-                    # get the coordinate string
-                    coors = mkt_to_gps(line[line.find("\"coors\":\"") + 9:line.find("\",\"distance\"")])
+            # data that has valid imei and have a guide route
+            if line.find('&imei=') != -1 and (line.find('&pf=') - line.find('&imei=')) > 15 and line.find("\"coors\":\"") != -1:
+                # get the coordinate string
+                coors = mkt_to_gps(line[line.find("\"coors\":\"") + 9:line.find("\",\"distance\"")])
 
-                    strs = line.split('|')
-                    t = strs[1]   # time
-                    imei = strs[2] # imei
+                strs = line.split('|')
+                t = strs[1]   # time
+                imei = strs[2] # imei
                     
-                    # request coordinate
-                    start = line[line.find('&start=1$$$$')+12:line.find('$$$$$$')]
-                    start_x,start_y = start.split(',')
-                    start = tuple(trans.coordinate_mkt_to_china((float(start_x),float(start_y)),is_float= True))
+                # request coordinate
+                start = line[line.find('&start=1$$$$')+12:line.find('$$$$$$')]
+                start_x,start_y = start.split(',')
+                start = tuple(trans.coordinate_mkt_to_china((float(start_x),float(start_y)),is_float= True))
                     
-                    coors_array = coors.strip().split(',')
-                    dest = (float(coors_array[-2].strip()),float(coors_array[-1].strip()))
+                coors_array = coors.strip().split(',')
+                dest = (float(coors_array[-2].strip()),float(coors_array[-1].strip()))
                     
-                    # only store one record for each user
-                    if imei in route.keys():
-                        continue
+                # only store one record for each user
+                if imei in route.keys():
+                    continue
                     
-                    element = []
-                    element.append([int(time.mktime(time.strptime(t,"%Y-%m-%d %H:%M:%S"))),start,coors,{},dest])
-                    route[imei] = element 
-            except:
-                continue
+                element = []
+                element.append([int(time.mktime(time.strptime(t,"%Y-%m-%d %H:%M:%S"))),start,coors,{},dest])
+                route[imei] = element 
+
     return route
 
 # read the user_trace file and put information into dictionary
