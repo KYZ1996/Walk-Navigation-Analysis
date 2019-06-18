@@ -114,6 +114,7 @@ def output(filename,route):
                     user_route = r[2]
 
                     user_trace = r[3]
+                    # if we have the user's trace, then process it
                     if len(user_trace) > 0:
                         trace_str = ""
                         points = user_trace.items()
